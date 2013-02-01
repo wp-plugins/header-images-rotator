@@ -31,14 +31,16 @@ Yes. Table and all options will droped.
 
 == Screenshots ==
 
-1. How it looks like 
+1.How it looks like 
 
 == Changelog ==
+Version 1.1
+-Add title to images. Old images will have empty title, but you can change it manually via settings page.
 
 
 
 == Upgrade notice ==
-
-
-
+1.Deactivate plugin
+2.Update files
+3.Activate plugin
 == Arbitrary section 1 ==

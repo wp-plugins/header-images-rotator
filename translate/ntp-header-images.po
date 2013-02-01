@@ -36,6 +36,10 @@ msgstr "Ссылка на картинку"
 msgid "Link to post"
 msgstr "Ссылка на пост"
 
+#: ntp-header-images.php:176
+msgid "Image title"
+msgstr "Заголовок"
+
 #: ntp-header-images.php:180 ntp-header-images.php:214
 msgid "Save"
 msgstr "Сохранить"

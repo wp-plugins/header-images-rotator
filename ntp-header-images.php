@@ -3,7 +3,7 @@
 Plugin Name: ntp-header-images
 Plugin URI: http://nord-tramper.ru
 Description: Image rotator for site header
-Version: 1.0
+Version: 1.1
 Author: Nikita Kiselev
 Author URI: http://nord-tramper.ru
 License: GPL2
@@ -78,7 +78,7 @@ function get_header_imageset2(){
 	//make 4 pictures
 	for ($i = 0; $i < $parameters["imageCount"]; $i++){
 		if ($i % $parameters["imageCount"] == 0) $id = "id = \"first_pict\""; else $id = "";
-		$out .= "<a href=\"".$image_links[$i]['link']."\"><img $id src=\"".$image_links[$i]['url']."\" width=\"".$parameters["imageWidth"]."\" height=\"".$parameters["imageHeight"]."\"></a>\n";
+		$out .= "<a href=\"".$image_links[$i]['link']."\"><img $id src=\"".$image_links[$i]['url']."\" width=\"".$parameters["imageWidth"]."\" height=\"".$parameters["imageHeight"]."\" title=\"".$image_links[$i]['title']."\"></a>\n";
 	}
 	echo $out.'</div>';
 }
@@ -100,6 +100,7 @@ function ntpOptionsPage(){
 						document.getElementById("id").value = id;
 						document.getElementById("image").value = document.getElementsByName("image_url_"+id)[0].value;
 						document.getElementById("link").value = document.getElementsByName("image_link_"+id)[0].value;
+						document.getElementById("title").value = document.getElementsByName("image_title_"+id)[0].value;
 					}
 					document.forms["data"].submit();
 				}
@@ -114,6 +115,7 @@ function ntpOptionsPage(){
 				<input type="hidden" name="id" id="id"  value="">
 				<input type="hidden" name="link" id="link" value="">
 				<input type="hidden" name="image" id="image" value="">
+				<input type="hidden" name="title" id="title" value="">
 			</form>
 			';
 	$out .= '<div class="wrap"><div id="icon-options-general" class="icon32"></div>';//tag with Settings icon
@@ -125,8 +127,9 @@ function ntpOptionsPage(){
 		$out .= '<form name="image_edit" id="image_edit" method="post">';
 		$out .= '<img src="'.$_REQUEST['image'].'"><br>';
 		$out .= '<table>';
-		$out .= '<tr><td>'.__('Link to image','ntp-header-images').':</td><td><input type="text" size="100" name="image_url" name="image_url" value="'.$_REQUEST['image'].'"></td></tr>';
-		$out .= '<tr><td>'.__('Link to post','ntp-header-images').':</td><td><input type="text" size="100" name="image_link" name="image_link" value="'.$_REQUEST['link'].'"></td></tr>';
+		$out .= '<tr><td>'.__('Link to image','ntp-header-images').':</td><td><input type="text" size="100" name="image_url"   id="image_url" value="'.$_REQUEST['image'].'"></td></tr>';
+		$out .= '<tr><td>'.__('Link to post','ntp-header-images').':</td><td><input type="text" size="100"  name="image_link"  id="image_link" value="'.$_REQUEST['link'].'"></td></tr>';
+		$out .= '<tr><td>'.__('Image title','ntp-header-images').':</td><td><input type="text" size="100"   name="image_title" id="image_title" value="'.$_REQUEST['title'].'"></td></tr>';
 		$out .= '</table>';
 		$out .= '<input type="hidden" name="id" name="id" value="'.$_REQUEST['id'].'">';
 		$out .= '<input type="hidden" name="action" name="action" value="save">';
@@ -137,14 +140,14 @@ function ntpOptionsPage(){
 	}
 	elseif($_REQUEST['action'] == 'save' or $_REQUEST['action'] == 'import' or $_REQUEST['action'] == null){
 		//check if we need make some save actions
-		if ($_REQUEST['action'] == 'save'){
+		if ($_REQUEST['action'] == 'save'){//save parameters for image with id = $_REQUEST['id']
 			if ($_REQUEST['save']){
-				ntpDoSave($_REQUEST['id'],'save',$_REQUEST['image_url'],$_REQUEST['image_link']);
+				ntpDoSave($_REQUEST['id'],'save',$_REQUEST['image_url'],$_REQUEST['image_link'],$_REQUEST['image_title']);
 			}
-			if ($_REQUEST['delete']){
+			if ($_REQUEST['delete']){//drop image with id = $_REQUEST['id']
 				ntpDoSave($_REQUEST['id'],'delete');
 			}
-			if ($_REQUEST['saveSettings']){
+			if ($_REQUEST['saveSettings']){//save plugin settings
 				ntpDoSaveOptions($_REQUEST['imageWidth'],$_REQUEST['imageHeight'],$_REQUEST['imageCount']);
 			}
 		} 
@@ -168,12 +171,6 @@ function ntpOptionsPage(){
 		$out .= '<tr><td>'.__('Images count','ntp-header-images').':</td><td><input size="5" type="text" name="imageCount" id="imageCount" value="'.$parameters["imageCount"].'"></td></tr>';		
 		$out .= '</table>';
 
-/*
-		$out .= '<div>';
-		$out .=	' <div>'.__('Images width','ntp-header-images').':</div><div><input size="5" type="text" name="imageWidth" id="iamgeWidth" value="'.$parameters["imageWidth"].'"></div>';
-		$out .=	' <div>'.__('Images height','ntp-header-images').':</div><div><input size="5" type="text" name="imageHeight" id="iamgeHeight" value="'.$parameters["imageHeight"].'"></div>';
-		$out .= '</div>';
-		*/
 		$out .= '<input type="hidden" name="action" id="action" value="save">';	
 		$out .= '<input type="submit" name="saveSettings" id="saveSettings" value="'.__('Save','ntp-header-images').'">';
 		$out .= '</form>';
@@ -204,7 +201,7 @@ function ntpGetAllImages($parameters){
 	//make all pictures
 	for ($i = 0; $i < count($image_links); $i++){
 		$id = $image_links[$i]['id'];
-		$out .= "<img src=\"".$image_links[$i]['url']."\" onclick=\"ntpDoSubmit(".$id.")\" width=\"".$parameters["imageWidth"]."\" height=\"".$parameters["imageHeight"]."\"><input name=\"image_link_".$id ."\"  type=\"hidden\" value=\"".$image_links[$i]['link']."\"><input name=\"image_url_".$id ."\"  type=\"hidden\" value=\"".$image_links[$i]['url']."\">\n";
+		$out .= "<img src=\"".$image_links[$i]['url']."\" title=\"".$image_links[$i]['title']."\" onclick=\"ntpDoSubmit(".$id.")\" width=\"".$parameters["imageWidth"]."\" height=\"".$parameters["imageHeight"]."\"><input name=\"image_link_".$id ."\"  type=\"hidden\" value=\"".$image_links[$i]['link']."\"><input name=\"image_title_".$id ."\"  type=\"hidden\" value=\"".$image_links[$i]['title']."\"><input name=\"image_url_".$id ."\"  type=\"hidden\" value=\"".$image_links[$i]['url']."\">\n";
 	}//*/	<a href=\"".$image_links[$i]['link']."\">
 	return $out;
 }
@@ -217,33 +214,31 @@ function ntpClearInput($str){
 	return $out;
 }
 
-function ntpDoSave($id,$action,$img_url,$img_link){
+function ntpDoSave($id,$action,$img_url,$img_link,$img_title){
 	global $wpdb;
 	$sql = "";
 	if($id){
-		if  ($action == 'delete'){
+		if  ($action == 'delete'){//delete image
 			$sql = "DELETE FROM ".$wpdb->prefix."ntp_header_images where id = ".$id;
 		}
-		elseif ($action == 'save'){
-			$sql = "UPDATE ".$wpdb->prefix."ntp_header_images SET url='".ntpClearInput($img_url)."', link = '".ntpClearInput($img_link)."' WHERE id = ".$id;
+		elseif ($action == 'save'){//save new parameters for image
+			$sql = "UPDATE ".$wpdb->prefix."ntp_header_images SET url='".ntpClearInput($img_url)."', link = '".ntpClearInput($img_link)."', title = '".ntpClearInput($img_title)."' WHERE id = ".$id;
 		}
 	}
-	else{//insert
-		$sql = "INSERT INTO ".$wpdb->prefix."ntp_header_images (url,link) VALUES ('".ntpClearInput($img_url)."','".ntpClearInput($img_link)."')";
+	else{//add new image
+		$sql = "INSERT INTO ".$wpdb->prefix."ntp_header_images (url,link,title) VALUES ('".ntpClearInput($img_url)."','".ntpClearInput($img_link)."','".ntpClearInput($img_title)."')";
 	}
-	//echo $sql;
 	//execute query
 	$wpdb->query($sql);
-	//echo "image changes was saved!";
 }
 
 //Import images from posts
 function ntpDoImport(){
 	global $wpdb;
-	$sql = "insert into ".$wpdb->prefix."ntp_header_images (url,link)
+	$sql = "insert into ".$wpdb->prefix."ntp_header_images (url,link,title)
 			SELECT *
 			FROM (
-				SELECT p2.guid url, p1.guid link
+				SELECT p2.guid url, p1.guid link,p1.post_title
 				FROM ".$wpdb->prefix."postmeta pm,
 					 ".$wpdb->prefix."posts p1,
 					 ".$wpdb->prefix."posts p2
@@ -303,15 +298,35 @@ function ntpShowDonation(){
 //Create table for plugin
 function ntpCreateTable(){
 	global $wpdb;
-	$sql = '
-			CREATE TABLE IF NOT EXISTS '.$wpdb->prefix.'ntp_header_images (
-			id tinyint(3) NOT NULL AUTO_INCREMENT,
-			url varchar(255) DEFAULT NULL,
-			link varchar(255) DEFAULT NULL,
-			PRIMARY KEY (`id`)
-			) DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-	';
-	$wpdb->query($sql);
+	$bTableNotExists;
+	$bAltNotExists;
+	//check if table already exists
+	$bTableExists = ($wpdb->get_var("SHOW TABLES LIKE '".$wpdb->prefix."ntp_header_images'") != $wpdb->prefix."ntp_header_images");
+	$bAltNotExists = $wpdb->get_results("select title from ".$wpdb->prefix."ntp_header_images where 0");
+	if ($bTableNotExists){
+		//create new table
+		$sql = '
+				CREATE TABLE IF NOT EXISTS '.$wpdb->prefix.'ntp_header_images (
+				id tinyint(3) NOT NULL AUTO_INCREMENT,
+				url varchar(255) DEFAULT NULL,
+				link varchar(255) DEFAULT NULL,
+				title varchar(255) DEFAULT NULL,
+				PRIMARY KEY (`id`)
+				) DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+		';
+	}
+	
+	if (!$bAltNotExists){
+		//update existing if needed
+		$sql = '
+			alter table '.$wpdb->prefix.'ntp_header_images add title varchar(255);
+		';
+	}
+	
+	//execute query if it is not empty
+	if ($sql) {
+		$wpdb->query($sql); 
+	};
 	
 }
 register_activation_hook(__FILE__,'ntpCreateTable');//install plugin
