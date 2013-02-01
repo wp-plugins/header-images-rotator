@@ -4,7 +4,7 @@ Donate link: http://nord-tramper.ru
 Tags: images, header, rotator
 Requires at least: 2.7
 Tested up to: 3.5
-Stable tag: trunc
+Stable tag: 1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
