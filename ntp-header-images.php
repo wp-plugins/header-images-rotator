@@ -298,12 +298,12 @@ function ntpShowDonation(){
 //Create table for plugin
 function ntpCreateTable(){
 	global $wpdb;
-	$bTableNotExists;
+	$bTableExists;
 	$bAltNotExists;
 	//check if table already exists
-	$bTableExists = ($wpdb->get_var("SHOW TABLES LIKE '".$wpdb->prefix."ntp_header_images'") != $wpdb->prefix."ntp_header_images");
+	$bTableExists = ($wpdb->get_var("SHOW TABLES LIKE '".$wpdb->prefix."ntp_header_images'") == $wpdb->prefix."ntp_header_images");
 	$bAltNotExists = $wpdb->get_results("select title from ".$wpdb->prefix."ntp_header_images where 0");
-	if ($bTableNotExists){
+	if (!$bTableExists){
 		//create new table
 		$sql = '
 				CREATE TABLE IF NOT EXISTS '.$wpdb->prefix.'ntp_header_images (
@@ -316,7 +316,7 @@ function ntpCreateTable(){
 		';
 	}
 	
-	if (!$bAltNotExists){
+	if (!$bAltNotExists && $bTableExists){
 		//update existing if needed
 		$sql = '
 			alter table '.$wpdb->prefix.'ntp_header_images add title varchar(255);
