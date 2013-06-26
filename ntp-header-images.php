@@ -1,4 +1,4 @@
-<?php
+п»ї<?php
 /*
 Plugin Name: ntp-header-images
 Plugin URI: http://nord-tramper.ru
@@ -35,9 +35,9 @@ function init_textdomain() {
 add_action('init', 'init_textdomain');
 
 function init_css(){
-	// Регистрируем стили для плагина:
+	// Register plugins style:
 	wp_register_style( 'ntp-header-images-style', plugins_url( '/style.css', __FILE__ ), array(), '20130109', 'all' );
-	// Ставим стили в очередь как для плагина, так и для темы:
+	// Queuing styles:
 	wp_enqueue_style( 'ntp-header-images-style' );
 }
 add_action( 'wp_enqueue_scripts', 'init_css' );
@@ -246,9 +246,22 @@ function ntpDoImport(){
 				 and pm.post_id = p1.id
 				 and pm.meta_value = p2.id
 			) new_
-			WHERE (new_.url, new_.link) NOT IN ( SELECT url, link FROM wpmain_ntp_header_images	)
+			WHERE (new_.url, new_.link) NOT IN ( SELECT url, link FROM  ".$wpdb->prefix."ntp_header_images	)
 	";
 	$wpdb->query($sql);	
+        //get first images from all posts
+        $sql = "insert into ".$wpdb->prefix."ntp_header_images (url,link,title)
+                          select
+                            substr(p.post_content,locate('src=\"',p.post_content)+5,(locate('\"',p.post_content,locate('src=\"',p.post_content)+5))-(locate('src=\"',p.post_content)+5)) url,
+                            p.guid link,
+                            p.post_title title
+                          from ".$wpdb->prefix."posts p
+                          where p.post_type = 'post'
+                            and p.post_status = 'publish'
+                            and p.guid not in (select link from ".$wpdb->prefix."ntp_header_images)
+        ";
+        $wpdb->query($sql);
+	
 }
 
 //Load options from option table
